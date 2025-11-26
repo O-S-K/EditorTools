@@ -1,3 +1,4 @@
+#define CustomPlayerPref
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -110,6 +111,39 @@ namespace CustomPlayerPref.PlayerPrefsEditor
             editor.minSize = minSize;
         }
 
+        
+        /// <summary>
+        /// Script này tự động thêm "CustomPlayerPref" vào Scripting Define Symbols
+        /// ngay khi bạn kéo script này vào dự án.
+        /// </summary>
+        [InitializeOnLoad]
+        public class AutoDefineCustomPlayerPref
+        {
+            private const string SYMBOL = "CustomPlayerPref";
+
+            static AutoDefineCustomPlayerPref()
+            {
+                // Lấy nhóm Build Target hiện tại (Android, iOS, Standalone...)
+                BuildTargetGroup targetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
+            
+                // Lấy chuỗi các symbol đang có
+                string defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(targetGroup);
+
+                // Kiểm tra xem đã có SYMBOL chưa
+                if (!defines.Contains(SYMBOL))
+                {
+                    // Nếu chưa có thì thêm vào cuối
+                    if (defines.Length > 0) defines += ";";
+                    defines += SYMBOL;
+
+                    // Lưu lại settings
+                    PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroup, defines);
+                
+                    Debug.Log($"[AutoDefine] Successfully added symbol: <b>{SYMBOL}</b>. Your tools are ready!");
+                }
+            }
+        }
+    
         private static string GetMacOSEditorPrefsPath()
         {
 #if UNITY_2017_4_OR_NEWER
